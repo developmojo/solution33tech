@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Factory Item Tracker MVP</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Factory Item Tracker</h1>
+    <p>Drag building components into the environment and group them to calculate totals.</p>
+    <span id="fallbackStorageBadge" class="status-badge" hidden>Loaded from fallback storage</span>
+  </header>
+
+  <main class="layout">
+    <aside class="left-panel">
+      <h2>Building Components</h2>
+      <div id="itemCatalog" class="catalog"></div>
+
+      <h2>Resources</h2>
+      <p class="help-text">Resources are tracked from production assignments on placed components.</p>
+      <div id="resourceLegend" class="legend"></div>
+    </aside>
+
+    <section class="workspace-panel">
+      <div class="toolbar">
+        <input id="groupName" type="text" placeholder="Group name (e.g. Iron Line A)" />
+        <button id="createGroupBtn" type="button">Create Group</button>
+        <button id="assignGroupBtn" type="button">Assign Selected to Group</button>
+        <button id="clearSelectionBtn" type="button" class="muted">Clear Selection</button>
+        <button id="exportJsonBtn" type="button" class="muted">Export JSON</button>
+        <button id="importJsonBtn" type="button" class="muted">Import JSON</button>
+        <button id="resetAllBtn" type="button" class="muted">Reset All</button>
+        <input id="importJsonInput" type="file" accept="application/json,.json" class="visually-hidden" />
+      </div>
+
+      <div class="factory-controls">
+        <section class="control-card">
+          <h3>Factories</h3>
+          <div class="row compact">
+            <input id="factoryName" type="text" placeholder="Factory name (e.g. Main Plant)" />
+            <button id="createFactoryBtn" type="button">Create Factory</button>
+          </div>
+          <div class="row compact">
+            <label for="groupForFactorySelect">Group</label>
+            <select id="groupForFactorySelect"></select>
+            <label for="factoryAssignSelect">Factory</label>
+            <select id="factoryAssignSelect"></select>
+            <button id="assignGroupToFactoryBtn" type="button" class="muted">Assign Group</button>
+          </div>
+        </section>
+
+        <section class="control-card">
+          <h3>Connections</h3>
+          <div class="row compact">
+            <label for="connSourceFactory">From Factory</label>
+            <select id="connSourceFactory"></select>
+            <label for="connSourceGroup">From Group</label>
+            <select id="connSourceGroup"></select>
+            <label for="connSourceResource">Resource</label>
+            <select id="connSourceResource"></select>
+          </div>
+          <div class="row compact">
+            <label for="connTargetFactory">To Factory</label>
+            <select id="connTargetFactory"></select>
+            <label for="connTargetGroup">To Group</label>
+            <select id="connTargetGroup"></select>
+            <label for="connTargetResource">Resource</label>
+            <select id="connTargetResource"></select>
+            <button id="addConnectionBtn" type="button">Add Connection</button>
+          </div>
+          <div id="connectionList" class="connection-list"></div>
+        </section>
+      </div>
+
+      <section class="factory-grid-section">
+        <h3>Factory Grid</h3>
+        <p class="help-text">Drag factory cards on the grid. Connection lines update automatically.</p>
+        <div class="factory-grid-toolbar">
+          <button id="zoomOutBtn" type="button" class="muted">-</button>
+          <button id="zoomInBtn" type="button" class="muted">+</button>
+          <button id="zoomResetBtn" type="button" class="muted">Reset Zoom</button>
+          <button id="fitMapBtn" type="button" class="muted">Fit Map</button>
+          <span id="zoomLevelLabel" class="zoom-label">100%</span>
+          <button id="loadMapImageBtn" type="button" class="muted">Load Map Image</button>
+          <button id="clearMapImageBtn" type="button" class="muted">Clear Map</button>
+          <input id="mapImageInput" type="file" accept="image/*" class="visually-hidden" />
+        </div>
+        <div id="factoryGrid" class="factory-grid">
+          <div id="factoryMapLayer" class="factory-map-layer" aria-hidden="true"></div>
+          <div id="factoryGridPattern" class="factory-grid-pattern" aria-hidden="true"></div>
+          <svg id="factoryConnectionsLayer" class="factory-connections-layer" aria-hidden="true"></svg>
+          <div id="factoryNodesLayer" class="factory-nodes-layer"></div>
+        </div>
+      </section>
+
+      <div id="dropZone" class="drop-zone" aria-label="Environment workspace">
+        <p class="drop-hint">Drop components here</p>
+      </div>
+
+      <div class="tables">
+        <section>
+          <h3>Environment Totals</h3>
+          <div id="environmentTotals"></div>
+        </section>
+        <section>
+          <h3>Group Totals</h3>
+          <div id="groupTotals"></div>
+        </section>
+        <section>
+          <h3>Factory Totals</h3>
+          <div id="factoryTotals"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
