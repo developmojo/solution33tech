@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>My Save - Satisfactory Tracking</title>
+	<style>
+		:root {
+			--bg: #f5f7fb;
+			--panel: #ffffff;
+			--line: #d8deea;
+			--text: #1f2937;
+			--muted: #6b7280;
+			--primary: #0f4aa1;
+			--good: #0b7a3a;
+			--warn: #b45309;
+			--bad: #b91c1c;
+		}
+
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			font-family: Montserrat, Arial, sans-serif;
+			color: var(--text);
+			background: var(--bg);
+		}
+
+		.page {
+			max-width: 1280px;
+			margin: 0 auto;
+			padding: 1rem;
+			display: grid;
+			gap: 1rem;
+		}
+
+		.section {
+			background: var(--panel);
+			border: 1px solid var(--line);
+			border-radius: 10px;
+			padding: 1rem;
+		}
+
+		h1 { margin: 0; font-size: 1.35rem; }
+		h2 { margin: 0 0 .8rem; font-size: 1.05rem; }
+		h3 { margin: 0 0 .6rem; font-size: .95rem; }
+		p { margin: .35rem 0; color: var(--muted); }
+
+		.grid {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(170px, 1fr));
+			gap: .6rem;
+			margin-bottom: .8rem;
+		}
+
+		label {
+			display: block;
+			font-size: .8rem;
+			color: var(--muted);
+			margin-bottom: .2rem;
+		}
+
+		input, select, textarea, button {
+			width: 100%;
+			border: 1px solid var(--line);
+			border-radius: 6px;
+			padding: .48rem .55rem;
+			font: inherit;
+		}
+
+		textarea { min-height: 38px; resize: vertical; }
+
+		button {
+			width: auto;
+			cursor: pointer;
+			background: var(--primary);
+			border-color: var(--primary);
+			color: #fff;
+			padding: .45rem .65rem;
+		}
+
+		button.muted {
+			background: #fff;
+			color: var(--primary);
+		}
+
+		.row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: .5rem;
+			margin-bottom: .7rem;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: .9rem;
+		}
+
+		th, td {
+			border: 1px solid var(--line);
+			padding: .45rem;
+			vertical-align: top;
+			text-align: left;
+		}
+
+		th { background: #f8fbff; }
+		.ok { color: var(--good); font-weight: 600; }
+		.bad { color: var(--bad); font-weight: 600; }
+		.warn { color: var(--warn); font-weight: 600; }
+		.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+		.split {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: .8rem;
+		}
+
+		@media (max-width: 980px) {
+			.grid { grid-template-columns: 1fr 1fr; }
+			.split { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<main class="page">
+		<section class="section">
+			<h1>My Save</h1>
+			<p>Use separate sections to track different save data types independently.</p>
+		</section>
+
+		<section class="section" id="oreNodePlannerSection">
+			<h2>Ore Node Planning</h2>
+			<p>Track each ore location, what you built there, and the machines needed for your target items by phase.</p>
+
+			<div class="grid">
+				<div>
+					<label for="spotName">Ore Spot Name</label>
+					<input id="spotName" placeholder="ex: Northern Iron Ridge" />
+				</div>
+				<div>
+					<label for="phase">Phase</label>
+					<select id="phase">
+						<option>Phase 1</option>
+						<option>Phase 2</option>
+						<option>Phase 3</option>
+						<option>Phase 4</option>
+						<option>Phase 5</option>
+					</select>
+				</div>
+				<div>
+					<label for="oreType">Ore Type</label>
+					<select id="oreType">
+						<option>Iron Ore</option>
+						<option>Copper Ore</option>
+						<option>Limestone</option>
+					</select>
+				</div>
+				<div>
+					<label for="purity">Purity</label>
+					<select id="purity">
+						<option>Impure</option>
+						<option selected>Normal</option>
+						<option>Pure</option>
+					</select>
+				</div>
+
+				<div>
+					<label for="minerMk">Miner Mk</label>
+					<select id="minerMk">
+						<option value="1">Mk1</option>
+						<option value="2" selected>Mk2</option>
+						<option value="3">Mk3</option>
+					</select>
+				</div>
+				<div>
+					<label for="clock">Clock %</label>
+					<input id="clock" type="number" min="1" max="250" value="100" />
+				</div>
+				<div>
+					<label for="targetItem">Target Item</label>
+					<select id="targetItem"></select>
+				</div>
+				<div>
+					<label for="targetRate">Target Rate (/min)</label>
+					<input id="targetRate" type="number" min="0.1" step="0.1" value="60" />
+				</div>
+			</div>
+
+			<div class="split" style="margin-bottom: .7rem;">
+				<div>
+					<label for="builtNow">What is built at this node now?</label>
+					<textarea id="builtNow" placeholder="ex: 4 smelters, 3 constructors, 1 assembler"></textarea>
+				</div>
+				<div>
+					<label for="needsNext">What still needs to be built for this phase?</label>
+					<textarea id="needsNext" placeholder="ex: +2 constructors, add rotor line"></textarea>
+				</div>
+			</div>
+
+			<div class="row">
+				<button id="calcBtn" type="button">Calculate</button>
+				<button id="saveBtn" type="button">Save Ore Node Plan</button>
+				<button id="clearBtn" type="button" class="muted">Clear Inputs</button>
+			</div>
+
+			<div class="split">
+				<section>
+					<h3>Current Calculation</h3>
+					<div id="resultPanel" class="mono"></div>
+				</section>
+				<section>
+					<h3>Phase Progress</h3>
+					<div id="phaseSummary"></div>
+				</section>
+			</div>
+
+			<h3 style="margin-top: .9rem;">Saved Ore Spots</h3>
+			<table>
+				<thead>
+					<tr>
+						<th>Spot</th>
+						<th>Phase</th>
+						<th>Ore</th>
+						<th>Target</th>
+						<th>Req. Machines</th>
+						<th>Built / Needs</th>
+						<th>Status</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody id="savedRows"></tbody>
+			</table>
+		</section>
+
+		<section class="section" id="otherSaveSection">
+			<h2>Other Save Sections</h2>
+			<p>This page is ready for additional save categories, each with its own storage key and table.</p>
+		</section>
+	</main>
+
+	<script>
+		const ORE_STORAGE_KEY = 'mysave-ore-node-tracker-v1';
+
+		const minerRates = {
+			Impure: { 1: 30, 2: 60, 3: 120 },
+			Normal: { 1: 60, 2: 120, 3: 240 },
+			Pure: { 1: 120, 2: 240, 3: 480 }
+		};
+
+		const recipes = {
+			'Iron Ingot': { machine: 'Smelter', outputPerMin: 30, inputsPerMin: { 'Iron Ore': 30 } },
+			'Copper Ingot': { machine: 'Smelter', outputPerMin: 30, inputsPerMin: { 'Copper Ore': 30 } },
+			'Iron Plate': { machine: 'Constructor', outputPerMin: 20, inputsPerMin: { 'Iron Ingot': 30 } },
+			'Iron Rod': { machine: 'Constructor', outputPerMin: 15, inputsPerMin: { 'Iron Ingot': 15 } },
+			'Screw': { machine: 'Constructor', outputPerMin: 40, inputsPerMin: { 'Iron Rod': 10 } },
+			'Wire': { machine: 'Constructor', outputPerMin: 30, inputsPerMin: { 'Copper Ingot': 15 } },
+			'Cable': { machine: 'Constructor', outputPerMin: 30, inputsPerMin: { 'Wire': 60 } },
+			'Concrete': { machine: 'Constructor', outputPerMin: 15, inputsPerMin: { 'Limestone': 45 } },
+			'Reinforced Iron Plate': { machine: 'Assembler', outputPerMin: 5, inputsPerMin: { 'Iron Plate': 30, 'Screw': 60 } },
+			'Rotor': { machine: 'Assembler', outputPerMin: 4, inputsPerMin: { 'Iron Rod': 20, 'Screw': 100 } },
+			'Modular Frame': { machine: 'Assembler', outputPerMin: 2, inputsPerMin: { 'Reinforced Iron Plate': 3, 'Iron Rod': 12 } }
+		};
+
+		const rawItems = new Set(['Iron Ore', 'Copper Ore', 'Limestone']);
+
+		const targetItemEl = document.getElementById('targetItem');
+		const resultPanelEl = document.getElementById('resultPanel');
+		const savedRowsEl = document.getElementById('savedRows');
+		const phaseSummaryEl = document.getElementById('phaseSummary');
+
+		Object.keys(recipes).sort().forEach((name) => {
+			const option = document.createElement('option');
+			option.value = name;
+			option.textContent = name;
+			targetItemEl.appendChild(option);
+		});
+
+		function computeRequirements(itemName, ratePerMin, acc = { machines: {}, raws: {} }) {
+			if (rawItems.has(itemName)) {
+				acc.raws[itemName] = (acc.raws[itemName] || 0) + ratePerMin;
+				return acc;
+			}
+
+			const recipe = recipes[itemName];
+			if (!recipe) {
+				return acc;
+			}
+
+			const machineCount = ratePerMin / recipe.outputPerMin;
+			acc.machines[recipe.machine] = (acc.machines[recipe.machine] || 0) + machineCount;
+
+			Object.entries(recipe.inputsPerMin).forEach(([name, inputRate]) => {
+				computeRequirements(name, inputRate * machineCount, acc);
+			});
+
+			return acc;
+		}
+
+		function loadOrePlans() {
+			try {
+				return JSON.parse(localStorage.getItem(ORE_STORAGE_KEY) || '[]');
+			} catch (error) {
+				return [];
+			}
+		}
+
+		function saveOrePlans(rows) {
+			localStorage.setItem(ORE_STORAGE_KEY, JSON.stringify(rows));
+		}
+
+		function buildPlanFromInputs() {
+			const spotName = (document.getElementById('spotName').value || '').trim() || 'Unnamed Spot';
+			const phase = document.getElementById('phase').value;
+			const oreType = document.getElementById('oreType').value;
+			const purity = document.getElementById('purity').value;
+			const minerMk = Number(document.getElementById('minerMk').value);
+			const clock = Number(document.getElementById('clock').value) || 100;
+			const targetItem = document.getElementById('targetItem').value;
+			const targetRate = Number(document.getElementById('targetRate').value) || 0;
+			const builtNow = (document.getElementById('builtNow').value || '').trim();
+			const needsNext = (document.getElementById('needsNext').value || '').trim();
+
+			const nodeOutput = (minerRates[purity][minerMk] * clock) / 100;
+			const req = computeRequirements(targetItem, targetRate);
+			const oreNeeded = req.raws[oreType] || 0;
+			const oreDiff = nodeOutput - oreNeeded;
+			const statusText = oreDiff >= 0
+				? `Surplus ${oreDiff.toFixed(1)}/min`
+				: `Deficit ${Math.abs(oreDiff).toFixed(1)}/min`;
+
+			return {
+				id: crypto.randomUUID(),
+				spotName,
+				phase,
+				oreType,
+				purity,
+				minerMk,
+				clock,
+				targetItem,
+				targetRate,
+				nodeOutput,
+				machines: req.machines,
+				raws: req.raws,
+				oreNeeded,
+				oreDiff,
+				statusText,
+				builtNow,
+				needsNext,
+				savedAt: new Date().toISOString()
+			};
+		}
+
+		function renderResult(plan) {
+			const machineRows = ['Smelter', 'Constructor', 'Assembler']
+				.map((machine) => `${machine}: ${(plan.machines[machine] || 0).toFixed(2)}`)
+				.join('<br>');
+
+			const rawRows = Object.entries(plan.raws)
+				.sort(([a], [b]) => a.localeCompare(b))
+				.map(([name, value]) => `${name}: ${value.toFixed(1)}/min`)
+				.join('<br>') || 'None';
+
+			const statusClass = plan.oreDiff >= 0 ? 'ok' : 'bad';
+
+			resultPanelEl.innerHTML = `
+				<div><strong>${plan.spotName}</strong> (${plan.phase})</div>
+				<div>Node Output: ${plan.oreType} ${plan.nodeOutput.toFixed(1)}/min</div>
+				<div>Target: ${plan.targetItem} @ ${plan.targetRate.toFixed(1)}/min</div>
+				<hr>
+				<div><strong>Required Machines</strong><br>${machineRows}</div>
+				<div style="margin-top:.4rem;"><strong>Raw Inputs</strong><br>${rawRows}</div>
+				<div style="margin-top:.4rem;" class="${statusClass}">Ore Balance: ${plan.statusText}</div>
+			`;
+		}
+
+		function renderSavedRows() {
+			const rows = loadOrePlans();
+
+			if (!rows.length) {
+				savedRowsEl.innerHTML = '<tr><td colspan="8">No ore node plans saved yet.</td></tr>';
+				return;
+			}
+
+			savedRowsEl.innerHTML = rows
+				.map((row) => {
+					const statusClass = row.oreDiff >= 0 ? 'ok' : 'bad';
+					const machineSummary = `S:${(row.machines.Smelter || 0).toFixed(1)} C:${(row.machines.Constructor || 0).toFixed(1)} A:${(row.machines.Assembler || 0).toFixed(1)}`;
+					const notes = `Built: ${row.builtNow || '-'}<br>Need: ${row.needsNext || '-'}`;
+
+					return `
+						<tr>
+							<td>${row.spotName}</td>
+							<td>${row.phase}</td>
+							<td>${row.oreType} (${row.purity})</td>
+							<td>${row.targetItem} @ ${Number(row.targetRate).toFixed(1)}/min</td>
+							<td class="mono">${machineSummary}</td>
+							<td>${notes}</td>
+							<td class="${statusClass}">${row.statusText}</td>
+							<td><button type="button" class="muted" data-delete-id="${row.id}">Delete</button></td>
+						</tr>
+					`;
+				})
+				.join('');
+		}
+
+		function renderPhaseSummary() {
+			const rows = loadOrePlans();
+			if (!rows.length) {
+				phaseSummaryEl.innerHTML = '<p>No saved plans yet.</p>';
+				return;
+			}
+
+			const phaseMap = new Map();
+			rows.forEach((row) => {
+				if (!phaseMap.has(row.phase)) {
+					phaseMap.set(row.phase, { count: 0, deficits: 0, surplus: 0 });
+				}
+
+				const info = phaseMap.get(row.phase);
+				info.count += 1;
+				if (row.oreDiff < 0) {
+					info.deficits += 1;
+				} else {
+					info.surplus += 1;
+				}
+			});
+
+			const phaseRows = Array.from(phaseMap.entries())
+				.sort(([a], [b]) => a.localeCompare(b))
+				.map(([phase, info]) => {
+					const health = info.deficits === 0 ? '<span class="ok">On Track</span>' : '<span class="warn">Needs Buildout</span>';
+					return `<tr><td>${phase}</td><td>${info.count}</td><td>${info.surplus}</td><td>${info.deficits}</td><td>${health}</td></tr>`;
+				})
+				.join('');
+
+			phaseSummaryEl.innerHTML = `
+				<table>
+					<thead>
+						<tr><th>Phase</th><th>Nodes</th><th>Balanced</th><th>Deficits</th><th>Status</th></tr>
+					</thead>
+					<tbody>${phaseRows}</tbody>
+				</table>
+			`;
+		}
+
+		function clearInputs() {
+			document.getElementById('spotName').value = '';
+			document.getElementById('phase').value = 'Phase 1';
+			document.getElementById('oreType').value = 'Iron Ore';
+			document.getElementById('purity').value = 'Normal';
+			document.getElementById('minerMk').value = '2';
+			document.getElementById('clock').value = '100';
+			document.getElementById('targetRate').value = '60';
+			document.getElementById('builtNow').value = '';
+			document.getElementById('needsNext').value = '';
+		}
+
+		document.getElementById('calcBtn').addEventListener('click', () => {
+			const plan = buildPlanFromInputs();
+			renderResult(plan);
+		});
+
+		document.getElementById('saveBtn').addEventListener('click', () => {
+			const plan = buildPlanFromInputs();
+			renderResult(plan);
+
+			const rows = loadOrePlans();
+			rows.push(plan);
+			saveOrePlans(rows);
+
+			renderSavedRows();
+			renderPhaseSummary();
+		});
+
+		document.getElementById('clearBtn').addEventListener('click', () => {
+			clearInputs();
+			resultPanelEl.innerHTML = '';
+		});
+
+		savedRowsEl.addEventListener('click', (event) => {
+			const button = event.target.closest('button[data-delete-id]');
+			if (!button) {
+				return;
+			}
+
+			const deleteId = button.getAttribute('data-delete-id');
+			const rows = loadOrePlans().filter((row) => row.id !== deleteId);
+			saveOrePlans(rows);
+			renderSavedRows();
+			renderPhaseSummary();
+		});
+
+		renderSavedRows();
+		renderPhaseSummary();
+	</script>
+</body>
+</html>
